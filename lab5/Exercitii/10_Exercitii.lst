@@ -1,0 +1,48 @@
+     1                                  bits 32 
+     2                                  
+     3                                  global start        
+     4                                  
+     5                                  extern exit               
+     6                                  import exit msvcrt.dll    
+     7                                  
+     8                                  segment data use32 class=data
+     9 00000000 2B32326238365838            s1 db '+', '2', '2', 'b', '8', '6', 'X', '8'    ; declararea sirului initial s1
+    10                                      ls1 equ ($-s1)                                  ; stabilirea lungimii sirului initial ls1
+    11 00000008 613435                      s2 db 'a', '4', '5'                             ; declararea sirului initial s2
+    12                                      ls2 equ ($-s2)                                  ; stabilirea lungimii sirului initial ls2
+    13 0000000B 00<rept>                    d times ls1+ls2 db 0                            ; rezervarea unui spatiu de dimensiune ls1+ls2 pentru sirul destinatie d si initializarea acestuia
+    14                                      
+    15                                  ;Se dau doua siruri de caractere S1 si S2. Sa se construiasca sirul D prin concatenarea elementelor sirului S2 in ordine inversa cu elementele de pe pozitiile pare din sirul S1.
+    16                                  ;S1: '+', '2', '2', 'b', '8', '6', 'X', '8'
+    17                                  ;S2: 'a', '4', '5'
+    18                                  ;D: '5', '4', 'a', '2', 'b', '6', '8'
+    19                                  
+    20                                  segment code use32 class=code
+    21                                      start:
+    22 00000000 B903000000                      mov ecx, ls2    ; punem lungimea in ecx pentru a putea realiza bucla loop de ecx ori
+    23 00000005 BE00000000                      mov esi, 0
+    24 0000000A BF00000000                      mov edi, 0
+    25 0000000F E310                            jecxz Sfarsit1  ; loop pentru lua sirul s2 in ordine inversa
+    26                                          repeta1:
+    27 00000011 8A86[08000000]                      mov al, [s2+esi]
+    28 00000017 46                                  inc esi
+    29 00000018 8887[0B000000]                      mov [d+edi], al
+    30 0000001E 47                                  inc edi
+    31 0000001F E2F0                            loop repeta1
+    32                                          Sfarsit1:
+    33                                          
+    34 00000021 B908000000                      mov ecx, ls1
+    35 00000026 BE00000000                      mov esi, 0
+    36 0000002B E312                            jecxz Sfarsit2  ; loop pentru a lua elemnetele de pe pozitii pare din sirul s1
+    37                                          repeta2:
+    38 0000002D 8A86[00000000]                      mov al,[s1+esi]
+    39 00000033 46                                  inc esi
+    40 00000034 46                                  inc esi
+    41 00000035 8887[0B000000]                      mov [d+edi], al
+    42 0000003B 47                                  inc edi
+    43 0000003C 49                                  dec ecx
+    44 0000003D E2EE                            loop repeta2
+    45                                          Sfarsit2:
+    46                                          
+    47 0000003F 6A00                            push    dword 0      
+    48 00000041 FF15[00000000]                  call    [exit]       
