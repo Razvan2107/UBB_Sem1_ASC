@@ -1,0 +1,72 @@
+     1                                  ;Problema 27
+     2                                  ;Dandu-se un sir de cuvinte, sa se calculeze cel mai lung subsir de cuvinte ordonate crescator din acest sir.
+     3                                  
+     4                                  ;Solutie:Facem loop in loop. In cel de-al doilea loop aflam cel mai lung subsir crescator pentru elementul aflat pe pozitia curenta din primul loop. Dupa cel de-al doilea loop vedem daca subsirul rezultat din al doi
+     5                                  bits 32 
+     6                                  
+     7                                  global start        
+     8                                  
+     9                                  extern exit               
+    10                                  import exit msvcrt.dll    
+    11                                  
+    12                                  segment data use32 class=data
+    13 00000000 3492788642781243            s dw 9234h, 8678h, 7842h, 4312h
+    14                                      len equ ($-s)/2;lungimea sirului (in words)
+    15 00000008 0000<rept>                  sol times len dw 0
+    16 00000010 0000<rept>                  d times len dw 0;subsirul cel mai lung cu elementele in ordine crescatoare
+    17                                  
+    18                                  segment code use32 class=code
+    19                                      start:
+    20 00000000 B904000000                      mov ecx, len;vom parcurge elementele sirului intr-o bucla loop cu len iteratii
+    21 00000005 BE[00000000]                    mov esi, s;offset-ul sirului sursa
+    22 0000000A BF[10000000]                    mov edi, d;offset-ul sirului destinatie
+    23 0000000F 66BA0000                        mov dx, 0
+    24 00000013 FC                              cld;parcurgem sirul de la stanga la dreapta (DF=0)
+    25                                          
+    26 00000014 E349                            jecxz sfarsit
+    27                                          
+    28                                      repeta1:
+    29                                          
+    30 00000016 51                              push ecx
+    31 00000017 B904000000                      mov ecx, len
+    32                                          
+    33 0000001C 66AD                            lodsw
+    34 0000001E 56                              push esi
+    35 0000001F BF[10000000]                    mov edi, d
+    36 00000024 B201                            mov dl, 1
+    37 00000026 66AB                            stosw
+    38                                          repeta2:
+    39 00000028 6689C3                              mov bx, ax
+    40 0000002B 66AD                                lodsw
+    41 0000002D 6639D8                              cmp ax, bx
+    42 00000030 7606                                jbe peste
+    43 00000032 66AB                                stosw
+    44 00000034 FEC2                                inc dl
+    45 00000036 EB02                                jmp aici
+    46                                              peste:
+    47 00000038 EB02                                    jmp iesire_loop2
+    48                                              aici:
+    49 0000003A E2EC                            loop repeta2
+    50                                          
+    51                                          iesire_loop2:
+    52 0000003C 38D6                                cmp dh, dl
+    53 0000003E 7202                                jb actualizeaza
+    54 00000040 EB19                                jmp nu_actualiza
+    55                                              actualizeaza:
+    56 00000042 B900000000                              mov ecx, 0
+    57 00000047 88D1                                    mov cl, dl
+    58 00000049 B500                                    mov ch, 0
+    59 0000004B 88D6                                    mov dh, dl
+    60 0000004D BE[10000000]                            mov esi, d
+    61 00000052 BF[08000000]                            mov edi, sol
+    62 00000057 FC                                      cld
+    63 00000058 F366A5                                  rep movsw
+    64                                              nu_actualiza:
+    65 0000005B 5E                                      pop esi
+    66 0000005C 59                                      pop ecx
+    67                                      
+    68 0000005D E2B7                        loop repeta1
+    69                                          
+    70                                          sfarsit:
+    71 0000005F 6A00                            push    dword 0      
+    72 00000061 FF15[00000000]                  call    [exit]       
