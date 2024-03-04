@@ -1,0 +1,44 @@
+     1                                  bits 32 
+     2                                  
+     3                                  global start        
+     4                                  
+     5                                  extern exit               
+     6                                  import exit msvcrt.dll    
+     7                                  
+     8                                  segment data use32 class=data
+     9 00000000 416E61206172652075-         s db 'Ana are un cojoc'
+     9 00000009 6E20636F6A6F63     
+    10                                      len equ $-s
+    11                                      max_cuv equ 50
+    12 00000010 <res 00000032>              cuv resb max_cuv
+    13                                  segment code use32 class=code
+    14                                      start:
+    15                                          ; 1. separam cuvintele
+    16 00000000 B910000000                      mov ecx, len
+    17 00000005 FC                              cld
+    18 00000006 BE[00000000]                    mov esi,s
+    19                                      urmator:
+    20 0000000B BB00000000                      mov ebx, 0      ; numar de litere din fiecare cuvant
+    21 00000010 BF[10000000]                    mov edi,cuv
+    22                                      repeta:
+    23                                          ; citesc s[i]
+    24 00000015 AC                              lodsb       ; AL='A' AL <- <DS:ESI> si inc esi
+    25                                  
+    26                                          ; verific daca e spatiu
+    27 00000016 3C20                            cmp al,' '
+    28 00000018 7404                            je e_spatiu
+    29                                          
+    30                                          ; e caracter
+    31 0000001A AA                              stosb       ; <ES:EDI> <- AL si inc EDI
+    32 0000001B 43                              inc ebx
+    33 0000001C E2F7                            loop repeta
+    34                                      e_spatiu:
+    35 0000001E 49                              dec ecx
+    36                                          ; verific ca e palindrom
+    37                                          
+    38                                          ; trec la urmatorul cuvant
+    39 0000001F 83F900                          cmp ecx, 0
+    40 00000022 75E7                            jnz urmator
+    41                                          
+    42 00000024 6A00                            push    dword 0      
+    43 00000026 FF15[00000000]                  call    [exit]       
